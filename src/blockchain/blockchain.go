@@ -3,7 +3,7 @@ package blockchain
 import (
 	"encoding/json"
 
-	"github.com/pauldin91/goledger/src/common"
+	"github.com/pauldin91/goledger/src/utils"
 )
 
 type Blockchain struct {
@@ -38,7 +38,7 @@ func IsValid(bc []Block) bool {
 		block := bc[i]
 		lastBlock := bc[i-1]
 		block.Hash = ""
-		expectedHash := common.Hash(block.ToString())
+		expectedHash := utils.Hash(block.ToString())
 		block.Hash = bc[i].Hash
 		if block.LastHash != lastBlock.Hash ||
 			block.Hash != expectedHash {

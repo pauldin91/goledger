@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pauldin91/goledger/src/common"
+	"github.com/pauldin91/goledger/src/utils"
 )
 
 var MineRate = 3000
@@ -27,7 +27,7 @@ func Genesis() Block {
 		Nonce:    0,
 	}
 	block.Data = ""
-	block.Hash = common.Hash(block.ToString())
+	block.Hash = utils.Hash(block.ToString())
 	return block
 }
 
@@ -75,7 +75,7 @@ func MineBlock(lastBlock Block, data string) Block {
 			LastHash:   lastBlock.Hash,
 			Data:       data,
 		}
-		hash = common.Hash(copy.ToString())
+		hash = utils.Hash(copy.ToString())
 		copy.Hash = hash
 		if strings.HasPrefix(copy.Hash, pref) {
 			return copy

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/pauldin91/goledger/src/common"
+	"github.com/pauldin91/goledger/src/utils"
 )
 
 const (
@@ -14,21 +14,21 @@ const (
 )
 
 type Transaction struct {
-	Id     uuid.UUID               `json:"id"`
-	Input  common.Input            `json:"input"`
-	Output map[string]common.Input `json:"output"`
-	Amount float64                 `json:"amount"`
+	Id     uuid.UUID              `json:"id"`
+	Input  utils.Input            `json:"input"`
+	Output map[string]utils.Input `json:"output"`
+	Amount float64                `json:"amount"`
 }
 
 func (t Transaction) String() string {
 	jsonT, _ := json.Marshal(t)
 	return string(jsonT)
 }
-func transactionWithOutputs(senderWallet Wallet, outputs []common.Input, amount float64) Transaction {
+func transactionWithOutputs(senderWallet Wallet, outputs []utils.Input, amount float64) Transaction {
 	transaction := Transaction{
 		Id: uuid.New(),
 	}
-	transaction.Output = make(map[string]common.Input)
+	transaction.Output = make(map[string]utils.Input)
 	for _, o := range outputs {
 
 		transaction.Output[o.Address] = o
@@ -43,14 +43,14 @@ func transactionWithOutputs(senderWallet Wallet, outputs []common.Input, amount 
 
 func (t *Transaction) sign(wallet Wallet) {
 	outs, _ := json.Marshal(&t.Output)
-	t.Input.Signature = wallet.keyPair.Sign(common.Hash(string(outs)))
+	t.Input.Signature = wallet.keyPair.Sign(utils.Hash(string(outs)))
 }
 
 func NewTransaction(senderWallet Wallet, recipient string, amount float64) *Transaction {
 	if amount > senderWallet.Balance || amount <= 0 {
 		return nil
 	}
-	outputs := []common.Input{
+	outputs := []utils.Input{
 		{Amount: senderWallet.Balance - amount, Address: senderWallet.keyPair.GetPublicKey(), Timestamp: time.Now().UTC()},
 		{Amount: amount, Address: recipient, Timestamp: time.Now().UTC()},
 	}
@@ -65,7 +65,7 @@ func (t *Transaction) Update(senderWallet Wallet, recipientAddress string, amoun
 		return
 	}
 	senderOutput.Amount = senderOutput.Amount - amount
-	newlyAdded := common.Input{
+	newlyAdded := utils.Input{
 		Timestamp: time.Now().UTC(),
 		Amount:    amount,
 		Address:   recipientAddress,
@@ -76,12 +76,12 @@ func (t *Transaction) Update(senderWallet Wallet, recipientAddress string, amoun
 
 func Verify(transaction Transaction) bool {
 	outs, _ := json.Marshal(transaction.Output)
-	var tsString string = common.Hash(string(outs))
-	return common.VerifySignature(transaction.Input.Address, []byte(tsString), []byte(transaction.Input.Signature))
+	var tsString string = utils.Hash(string(outs))
+	return utils.VerifySignature(transaction.Input.Address, []byte(tsString), []byte(transaction.Input.Signature))
 }
 
 func Reward(minerWallet *Wallet, blockchainWallet *Wallet) *Transaction {
-	outputs := []common.Input{
+	outputs := []utils.Input{
 		{Amount: MINING_REWARD, Address: minerWallet.Address, Timestamp: time.Now().UTC()},
 	}
 	tr := transactionWithOutputs(*blockchainWallet, outputs, MINING_REWARD)

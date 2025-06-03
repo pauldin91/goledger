@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/pauldin91/goledger/src/common"
+	"github.com/pauldin91/goledger/src/utils"
 )
 
 type Wallet struct {
 	Balance float64 `json:"balance"`
-	keyPair *common.KeyPair
+	keyPair *utils.KeyPair
 	Address string `json:"address"`
 }
 
@@ -22,7 +22,7 @@ func (w Wallet) String() string {
 func NewWallet(init float64) Wallet {
 	res := Wallet{
 		Balance: init,
-		keyPair: common.NewKeyPair(),
+		keyPair: utils.NewKeyPair(),
 	}
 	res.Address = res.keyPair.GetPublicKey()
 	return res
@@ -40,22 +40,22 @@ func (w Wallet) CalculateBalance(chain Blockchain) float64 {
 		_ = json.Unmarshal([]byte(b.Data), &transactions)
 		totalTransactions = append(totalTransactions, transactions...)
 	}
-	walletInputTs := common.FilterBy(totalTransactions, w.keyPair.GetPublicKey(), findTransactionByAddress)
+	walletInputTs := utils.FilterBy(totalTransactions, w.keyPair.GetPublicKey(), findTransactionByAddress)
 
 	var start time.Time
 	if len(walletInputTs) > 0 {
-		recentInputT := common.Aggregate(walletInputTs, maxByTimestamp)
+		recentInputT := utils.Aggregate(walletInputTs, maxByTimestamp)
 		balance = recentInputT.Output[w.keyPair.GetPublicKey()].Amount
 		start = recentInputT.Input.Timestamp
 	}
 
-	v := common.TimestampAddressFilter{
+	v := utils.TimestampAddressFilter{
 		Timestamp: start,
 		Address:   w.keyPair.GetPublicKey(),
 	}
 
-	filteredOutputs := make(map[string]common.Input)
-	common.SelectMany(totalTransactions, &filteredOutputs, func(t *Transaction, m *map[string]common.Input) {
+	filteredOutputs := make(map[string]utils.Input)
+	utils.SelectMany(totalTransactions, &filteredOutputs, func(t *Transaction, m *map[string]utils.Input) {
 		for _, i := range t.Output {
 			if i.Address == v.Address && t.Input.Timestamp.After(v.Timestamp) {
 				filteredOutputs[i.Address] = i

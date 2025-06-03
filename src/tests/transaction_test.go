@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/pauldin91/goledger/src/blockchain"
-	"github.com/pauldin91/goledger/src/common"
+	"github.com/pauldin91/goledger/src/utils"
 )
 
 var amount float64 = 10.0
@@ -36,7 +36,7 @@ func TestVerifyTransaction(t *testing.T) {
 	if !res {
 		t.Error("Valid transaction should be validated")
 	}
-	var copy common.Input = transaction.Output[recipientWallet.Address]
+	var copy utils.Input = transaction.Output[recipientWallet.Address]
 
 	copy.Amount = 30000
 	transaction.Output[recipientWallet.Address] = copy

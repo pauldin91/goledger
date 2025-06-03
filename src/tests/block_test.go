@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/pauldin91/goledger/src/blockchain"
-	"github.com/pauldin91/goledger/src/common"
+	"github.com/pauldin91/goledger/src/utils"
 )
 
 var genesisBlock = blockchain.Genesis()
@@ -26,7 +26,7 @@ func TestGenesis(t *testing.T) {
 		Nonce:    0,
 	}
 	block.Data = ""
-	block.Hash = common.Hash(block.ToString())
+	block.Hash = utils.Hash(block.ToString())
 	if genesisBlock.Hash != block.Hash {
 		t.Error("Hashes missmatch")
 	}

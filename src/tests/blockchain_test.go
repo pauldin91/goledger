@@ -6,12 +6,12 @@ import (
 	"time"
 
 	"github.com/pauldin91/goledger/src/blockchain"
-	"github.com/pauldin91/goledger/src/common"
+	"github.com/pauldin91/goledger/src/utils"
 )
 
 var gen = blockchain.Genesis()
 
-var msg = common.Input{
+var msg = utils.Input{
 	Timestamp: time.Now().UTC(),
 	Address:   "r3ciP13nT",
 	Amount:    50.44,

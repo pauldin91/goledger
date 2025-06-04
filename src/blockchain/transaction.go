@@ -9,10 +9,6 @@ import (
 	"github.com/pauldin91/goledger/src/utils"
 )
 
-const (
-	MINING_REWARD float64 = 3000
-)
-
 type Transaction struct {
 	Id     uuid.UUID              `json:"id"`
 	Input  utils.Input            `json:"input"`
@@ -74,7 +70,7 @@ func (t *Transaction) Update(senderWallet Wallet, recipientAddress string, amoun
 	t.Output[newlyAdded.Address] = newlyAdded
 }
 
-func Verify(transaction Transaction) bool {
+func (transaction *Transaction) Verify() bool {
 	outs, _ := json.Marshal(transaction.Output)
 	var tsString string = utils.Hash(string(outs))
 	return utils.VerifySignature(transaction.Input.Address, []byte(tsString), []byte(transaction.Input.Signature))

@@ -1,25 +1,15 @@
-package core
+package tests
 
 import (
 	"encoding/json"
 	"testing"
-	"time"
 
 	"github.com/pauldin91/goledger/src/blockchain"
-	"github.com/pauldin91/goledger/src/utils"
 )
-
-var gen = blockchain.Genesis()
-
-var msg = utils.Input{
-	Timestamp: time.Now().UTC(),
-	Address:   "r3ciP13nT",
-	Amount:    50.44,
-}
 
 func TestCreate(t *testing.T) {
 	e := blockchain.Create()
-	jsonGen, _ := json.Marshal(gen)
+	jsonGen, _ := json.Marshal(genesisBlock)
 	jsonFirst, _ := json.Marshal(e.Chain[0])
 	if string(jsonFirst) != string(jsonGen) {
 		t.Error("First block in chain must be genesis")

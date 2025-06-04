@@ -1,4 +1,4 @@
-package core
+package tests
 
 import (
 	"testing"
@@ -6,8 +6,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/pauldin91/goledger/src/blockchain"
 )
-
-var pool = blockchain.TransactionPool{}
 
 func TestAddTransactionToThePool(t *testing.T) {
 	pool.AddOrUpdateById(*transaction)

@@ -1,4 +1,4 @@
-package core
+package tests
 
 import (
 	"strings"
@@ -8,8 +8,6 @@ import (
 	"github.com/pauldin91/goledger/src/blockchain"
 	"github.com/pauldin91/goledger/src/utils"
 )
-
-var genesisBlock = blockchain.Genesis()
 
 func TestGenesis(t *testing.T) {
 
@@ -37,12 +35,12 @@ func TestGenesis(t *testing.T) {
 }
 
 func TestAdjustDifficulty(t *testing.T) {
-	diff := blockchain.AdjustDifficulty(genesisBlock, time.Now().UTC())
+	diff := utils.AdjustDifficulty(genesisBlock.Difficulty, genesisBlock.Timestamp, time.Now().UTC(), 1000)
 	if diff != 1 {
 		t.Errorf("Difficulty should be %d\n", diff)
 	}
 	genesisBlock.Difficulty = 5
-	diff = blockchain.AdjustDifficulty(genesisBlock, time.Now().UTC().Add(time.Duration(time.Second*4)))
+	diff = utils.AdjustDifficulty(genesisBlock.Difficulty, genesisBlock.Timestamp, time.Now().UTC().Add(time.Duration(time.Second*4)), 1000)
 	if diff != 4 {
 		t.Errorf("Difficulty should be %d\n", diff)
 	}
@@ -50,16 +48,15 @@ func TestAdjustDifficulty(t *testing.T) {
 }
 
 func TestMineBlock(t *testing.T) {
-	mined := blockchain.MineBlock(genesisBlock, "")
+	mined := bc.MineBlock("", false)
 	if !strings.HasPrefix(mined.Hash, strings.Repeat("0", int(genesisBlock.Difficulty))) {
 		t.Errorf("Difficulty was %d while output was %s", genesisBlock.Difficulty, mined.Hash)
 	}
 	genesisBlock.Difficulty = 5
 	time.Sleep(time.Second * 4)
-	mined = blockchain.MineBlock(genesisBlock, "")
+	mined = bc.MineBlock("", false)
 	if !strings.HasPrefix(mined.Hash, strings.Repeat("0", int(genesisBlock.Difficulty-1))) {
 		t.Errorf("Difficulty was %d while output was %s", genesisBlock.Difficulty, mined.Hash)
 	}
 	genesisBlock.Difficulty = 0
-
 }

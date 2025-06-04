@@ -1,14 +1,10 @@
-package core
+package tests
 
 import (
 	"testing"
 
-	"github.com/pauldin91/goledger/src/blockchain"
 	"github.com/pauldin91/goledger/src/utils"
 )
-
-var amount float64 = 10.0
-var transaction = blockchain.NewTransaction(senderWallet, recipientWallet.Address, amount)
 
 func TestNewTransaction(t *testing.T) {
 
@@ -32,7 +28,7 @@ func TestNewTransaction(t *testing.T) {
 }
 
 func TestVerifyTransaction(t *testing.T) {
-	res := blockchain.Verify(*transaction)
+	res := transaction.Verify()
 	if !res {
 		t.Error("Valid transaction should be validated")
 	}
@@ -41,7 +37,7 @@ func TestVerifyTransaction(t *testing.T) {
 	copy.Amount = 30000
 	transaction.Output[recipientWallet.Address] = copy
 
-	res = blockchain.Verify(*transaction)
+	res = transaction.Verify()
 	if res {
 		t.Error("invalid transaction should be invalidated")
 	}

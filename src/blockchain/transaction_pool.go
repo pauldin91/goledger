@@ -44,19 +44,3 @@ func (p *TransactionPool) ValidTransactions() []Transaction {
 func (p *TransactionPool) Clear() {
 	p.Transactions = []Transaction{}
 }
-
-func filter(transaction Transaction) *Transaction {
-	var totalOutput float64 = 0.0
-	for _, z := range transaction.Output {
-		totalOutput += z.Amount
-	}
-	if transaction.Input.Amount != totalOutput {
-		return nil
-	}
-	if !Verify(transaction) {
-		return nil
-	}
-
-	return &transaction
-
-}

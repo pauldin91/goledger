@@ -1,27 +1,9 @@
-package core
+package tests
 
 import (
 	"encoding/json"
 	"testing"
-
-	"github.com/pauldin91/goledger/src/blockchain"
 )
-
-var tp = blockchain.TransactionPool{}
-var bc = blockchain.Create()
-var senderWallet = blockchain.NewWallet(100.0)
-var recipientWallet = blockchain.NewWallet(0.0)
-
-var testAmounts = []struct {
-	amount           float64
-	shouldBeExecuted bool
-}{
-	{5.0, true},
-	{11.0, true},
-	{22.0, true},
-	{-19.0, false},
-	{50000.0, false},
-}
 
 func TestCreateTransaction(t *testing.T) {
 

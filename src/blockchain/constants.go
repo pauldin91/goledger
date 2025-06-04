@@ -1,6 +1,17 @@
 package blockchain
 
-import "github.com/pauldin91/goledger/src/utils"
+import (
+	"strings"
+
+	"github.com/pauldin91/goledger/src/utils"
+)
+
+const (
+	MineRate              = 3000
+	MINING_REWARD float64 = 3000
+)
+
+var GenesisLastHash = strings.Repeat("0", 64)
 
 var maxByTimestamp = func(k Transaction, t Transaction) Transaction {
 	if k.Input.Timestamp.UnixMilli() > t.Input.Timestamp.UnixMilli() {
@@ -18,4 +29,20 @@ var findByAddressAndTimestamp = func(t Transaction, v utils.TimestampAddressFilt
 	_, ex := t.Output[v.Address]
 
 	return t.Input.Timestamp.After(v.Timestamp) && ex
+}
+
+func filter(transaction Transaction) *Transaction {
+	var totalOutput float64 = 0.0
+	for _, z := range transaction.Output {
+		totalOutput += z.Amount
+	}
+	if transaction.Input.Amount != totalOutput {
+		return nil
+	}
+	if !transaction.Verify() {
+		return nil
+	}
+
+	return &transaction
+
 }

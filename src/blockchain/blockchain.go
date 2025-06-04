@@ -2,6 +2,8 @@ package blockchain
 
 import (
 	"encoding/json"
+	"strings"
+	"time"
 
 	"github.com/pauldin91/goledger/src/utils"
 )
@@ -23,7 +25,7 @@ func Create() *Blockchain {
 }
 
 func (bc *Blockchain) AddBlock(data string) Block {
-	block := MineBlock(bc.Chain[len(bc.Chain)-1], data)
+	block := bc.MineBlock(data, true)
 	bc.Chain = append(bc.Chain, block)
 	return block
 }
@@ -57,4 +59,38 @@ func (bc *Blockchain) ReplaceChain(newChain []Block) bool {
 	}
 	bc.Chain = newChain
 	return true
+}
+
+func (bc *Blockchain) MineBlock(data string, adjusting bool) Block {
+
+	var hash string
+	var timestamp time.Time
+	var nonce int64 = 0
+	var difficulty int64 = 4
+	var lastBlock Block
+	if len(bc.Chain) == 0 {
+		bc.Chain = append(bc.Chain, Genesis())
+	}
+	lastBlock = bc.Chain[len(bc.Chain)-1]
+	for {
+		nonce++
+		timestamp = time.Now().UTC()
+		if adjusting {
+			difficulty = utils.AdjustDifficulty(lastBlock.Difficulty, lastBlock.Timestamp, timestamp, MineRate)
+		}
+
+		pref := strings.Repeat("0", int(difficulty))
+		copy := Block{
+			Nonce:      nonce,
+			Timestamp:  timestamp,
+			Difficulty: difficulty,
+			LastHash:   lastBlock.Hash,
+			Data:       data,
+		}
+		hash = utils.Hash(copy.ToString())
+		copy.Hash = hash
+		if strings.HasPrefix(copy.Hash, pref) {
+			return copy
+		}
+	}
 }

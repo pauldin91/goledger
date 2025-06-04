@@ -78,9 +78,9 @@ func (transaction *Transaction) Verify() bool {
 
 func Reward(minerWallet *Wallet, blockchainWallet *Wallet) *Transaction {
 	outputs := []utils.Input{
-		{Amount: MINING_REWARD, Address: minerWallet.Address, Timestamp: time.Now().UTC()},
+		{Amount: MiningReward, Address: minerWallet.Address, Timestamp: time.Now().UTC()},
 	}
-	tr := transactionWithOutputs(*blockchainWallet, outputs, MINING_REWARD)
+	tr := transactionWithOutputs(*blockchainWallet, outputs, MiningReward)
 
 	return &tr
 }

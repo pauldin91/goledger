@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	MineRate              = 3000
-	MINING_REWARD float64 = 3000
+	MineRate             = 3000
+	MiningReward float64 = 3000
 )
 
 var GenesisLastHash = strings.Repeat("0", 64)

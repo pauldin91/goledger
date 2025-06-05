@@ -8,12 +8,13 @@ import (
 )
 
 type Block struct {
-	Timestamp  time.Time `json:"timestamp"`
+	Index      int64     `json:"index"`
+	Nonce      int64     `json:"nonce"`
+	Difficulty int64     `json:"difficulty"`
 	LastHash   string    `json:"previous_block_hash"`
 	Hash       string    `json:"current_block_hash"`
 	Data       string    `json:"data"`
-	Nonce      int64     `json:"nonce"`
-	Difficulty int64     `json:"difficulty"`
+	Timestamp  time.Time `json:"timestamp"`
 }
 
 func Genesis() Block {
@@ -22,8 +23,13 @@ func Genesis() Block {
 		Nonce:    0,
 	}
 	block.Data = ""
-	block.Hash = utils.Hash(block.ToString())
+	block.Hash = block.GetHash()
 	return block
+}
+
+func (b *Block) GetHash() string {
+	var record string = string(b.Index) + string(b.Nonce) + string(b.Difficulty) + b.LastHash + b.Data + b.Timestamp.Format(time.RFC3339)
+	return utils.Hash(record)
 }
 
 func (b *Block) ToString() string {

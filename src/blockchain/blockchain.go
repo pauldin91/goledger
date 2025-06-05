@@ -39,9 +39,7 @@ func IsValid(bc []Block) bool {
 	for i := 1; i < len(bc); i++ {
 		block := bc[i]
 		lastBlock := bc[i-1]
-		block.Hash = ""
-		expectedHash := utils.Hash(block.ToString())
-		block.Hash = bc[i].Hash
+		expectedHash := block.GetHash()
 		if block.LastHash != lastBlock.Hash ||
 			block.Hash != expectedHash {
 			return false
@@ -63,7 +61,6 @@ func (bc *Blockchain) ReplaceChain(newChain []Block) bool {
 
 func (bc *Blockchain) MineBlock(data string, adjusting bool) Block {
 
-	var hash string
 	var timestamp time.Time
 	var nonce int64 = 0
 	var difficulty int64 = 4
@@ -87,8 +84,7 @@ func (bc *Blockchain) MineBlock(data string, adjusting bool) Block {
 			LastHash:   lastBlock.Hash,
 			Data:       data,
 		}
-		hash = utils.Hash(copy.ToString())
-		copy.Hash = hash
+		copy.Hash = copy.GetHash()
 		if strings.HasPrefix(copy.Hash, pref) {
 			return copy
 		}

@@ -24,7 +24,7 @@ func TestGenesis(t *testing.T) {
 		Nonce:    0,
 	}
 	block.Data = ""
-	block.Hash = utils.Hash(block.ToString())
+	block.Hash = block.GetHash()
 	if genesisBlock.Hash != block.Hash {
 		t.Error("Hashes missmatch")
 	}

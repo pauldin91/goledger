@@ -37,7 +37,7 @@ func (w Wallet) CalculateBalance(chain Blockchain) float64 {
 	balance := w.Balance
 	for _, b := range chain.Chain {
 		var transactions []Transaction
-		_ = json.Unmarshal([]byte(b.Data), &transactions)
+		_ = json.Unmarshal([]byte(b.data), &transactions)
 		totalTransactions = append(totalTransactions, transactions...)
 	}
 	walletInputTs := utils.FilterBy(totalTransactions, w.keyPair.GetPublicKey(), findTransactionByAddress)

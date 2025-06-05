@@ -8,27 +8,40 @@ import (
 )
 
 type Block struct {
-	Index      int64     `json:"index"`
-	Nonce      int64     `json:"nonce"`
-	Difficulty int64     `json:"difficulty"`
-	LastHash   string    `json:"previous_block_hash"`
-	Hash       string    `json:"current_block_hash"`
-	Data       string    `json:"data"`
-	Timestamp  time.Time `json:"timestamp"`
+	index      int64
+	Nonce      int64
+	difficulty int64
+	previous   string
+	hash       string
+	data       string
+	timestamp  time.Time
 }
 
 func Genesis() Block {
 	block := Block{
-		LastHash: GenesisLastHash,
+		index:    0,
+		previous: GenesisLastHash,
 		Nonce:    0,
 	}
-	block.Data = ""
-	block.Hash = block.GetHash()
+	block.data = ""
+	block.hash = block.GetHash()
 	return block
 }
 
+func (b *Block) Create(nonce int64, diff int64, data string) Block {
+	return Block{
+		index:      b.index + 1,
+		previous:   b.hash,
+		data:       data,
+		timestamp:  time.Now().UTC(),
+		Nonce:      nonce,
+		difficulty: diff,
+	}
+
+}
+
 func (b *Block) GetHash() string {
-	var record string = string(b.Index) + string(b.Nonce) + string(b.Difficulty) + b.LastHash + b.Data + b.Timestamp.Format(time.RFC3339)
+	var record string = string(b.index) + string(b.Nonce) + string(b.difficulty) + b.previous + b.data + b.timestamp.Format(time.RFC3339)
 	return utils.Hash(record)
 }
 

@@ -19,7 +19,7 @@ func TestAddTransactionToThePool(t *testing.T) {
 		t.Error("invalid input in the transaction")
 	}
 
-	if tt.Output[senderWallet.Address].String() != transaction.Output[senderWallet.Address].String() {
+	if tt.Tx[senderWallet.Address].String() != transaction.Tx[senderWallet.Address].String() {
 		t.Error("Inputs dont much")
 	}
 

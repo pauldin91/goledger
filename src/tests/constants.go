@@ -28,7 +28,7 @@ var testAmounts = []struct {
 
 var transaction = blockchain.NewTransaction(senderWallet, recipientWallet.Address, amount)
 
-var msg = utils.Input{
+var msg = utils.Data{
 	Timestamp: time.Now().UTC(),
 	Address:   "r3ciP13nT",
 	Amount:    50.44,

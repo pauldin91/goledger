@@ -9,6 +9,6 @@ type Block = blockchain.Block
 type Blockchain = blockchain.Blockchain
 type Transaction = blockchain.Transaction
 type TransactionPool = blockchain.TransactionPool
-type Input = utils.Input
+type Input = utils.Data
 type Wallet = blockchain.Wallet
 type TimestampAddressFilter = utils.TimestampAddressFilter

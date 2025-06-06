@@ -45,7 +45,7 @@ func (w Wallet) CalculateBalance(chain Blockchain) float64 {
 	var start time.Time
 	if len(walletInputTs) > 0 {
 		recentInputT := utils.Aggregate(walletInputTs, maxByTimestamp)
-		balance = recentInputT.Output[w.keyPair.GetPublicKey()].Amount
+		balance = recentInputT.Tx[w.keyPair.GetPublicKey()].Amount
 		start = recentInputT.Input.Timestamp
 	}
 
@@ -54,9 +54,9 @@ func (w Wallet) CalculateBalance(chain Blockchain) float64 {
 		Address:   w.keyPair.GetPublicKey(),
 	}
 
-	filteredOutputs := make(map[string]utils.Input)
-	utils.SelectMany(totalTransactions, &filteredOutputs, func(t *Transaction, m *map[string]utils.Input) {
-		for _, i := range t.Output {
+	filteredOutputs := make(map[string]utils.Data)
+	utils.SelectMany(totalTransactions, &filteredOutputs, func(t *Transaction, m *map[string]utils.Data) {
+		for _, i := range t.Tx {
 			if i.Address == v.Address && t.Input.Timestamp.After(v.Timestamp) {
 				filteredOutputs[i.Address] = i
 			}

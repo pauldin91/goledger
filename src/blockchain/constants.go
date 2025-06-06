@@ -26,14 +26,14 @@ var findTransactionByAddress = func(t Transaction, a string) bool {
 }
 
 var findByAddressAndTimestamp = func(t Transaction, v utils.TimestampAddressFilter) bool {
-	_, ex := t.Output[v.Address]
+	_, ex := t.Tx[v.Address]
 
 	return t.Input.Timestamp.After(v.Timestamp) && ex
 }
 
 func filter(transaction Transaction) *Transaction {
 	var totalOutput float64 = 0.0
-	for _, z := range transaction.Output {
+	for _, z := range transaction.Tx {
 		totalOutput += z.Amount
 	}
 	if transaction.Input.Amount != totalOutput {

@@ -8,18 +8,18 @@ import (
 
 func TestNewTransaction(t *testing.T) {
 
-	if len(transaction.Output) != 2 {
+	if len(transaction.Tx) != 2 {
 		t.Error("Transaction output length is always 2")
 	}
 
-	sender, ex := transaction.Output[senderWallet.Address]
+	sender, ex := transaction.Tx[senderWallet.Address]
 	if !ex ||
 		sender.Amount != senderWallet.Balance-amount ||
 		sender.Address != senderWallet.Address {
 		t.Error("Invalid sender transaction")
 	}
 
-	recipient, ex := transaction.Output[recipientWallet.Address]
+	recipient, ex := transaction.Tx[recipientWallet.Address]
 	if !ex ||
 		recipient.Amount != recipientWallet.Balance+amount ||
 		recipient.Address != recipientWallet.Address {
@@ -32,10 +32,10 @@ func TestVerifyTransaction(t *testing.T) {
 	if !res {
 		t.Error("Valid transaction should be validated")
 	}
-	var copy utils.Input = transaction.Output[recipientWallet.Address]
+	var copy utils.Data = transaction.Tx[recipientWallet.Address]
 
 	copy.Amount = 30000
-	transaction.Output[recipientWallet.Address] = copy
+	transaction.Tx[recipientWallet.Address] = copy
 
 	res = transaction.Verify()
 	if res {

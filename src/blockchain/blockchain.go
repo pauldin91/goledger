@@ -25,7 +25,7 @@ func Create() *Blockchain {
 }
 
 func (bc *Blockchain) AddBlock(data string) Block {
-	block := bc.MineBlock(data, true)
+	block := bc.MineBlock(data)
 	bc.Chain = append(bc.Chain, block)
 	return block
 }
@@ -39,7 +39,7 @@ func IsValid(bc []Block) bool {
 	for i := 1; i < len(bc); i++ {
 		block := bc[i]
 		lastBlock := bc[i-1]
-		expectedHash := block.GetHash()
+		expectedHash := block.HashBlock()
 		if block.previous != lastBlock.hash ||
 			block.hash != expectedHash {
 			return false
@@ -59,7 +59,7 @@ func (bc *Blockchain) ReplaceChain(newChain []Block) bool {
 	return true
 }
 
-func (bc *Blockchain) MineBlock(data string, adjusting bool) Block {
+func (bc *Blockchain) MineBlock(data string) Block {
 
 	var nonce int64 = 0
 	var difficulty int64 = 4
@@ -68,15 +68,13 @@ func (bc *Blockchain) MineBlock(data string, adjusting bool) Block {
 		bc.Chain = append(bc.Chain, Genesis())
 	}
 	lastBlock = bc.Chain[len(bc.Chain)-1]
+	if lastBlock.index%2048 == 0 {
+		difficulty = utils.AdjustDifficulty(lastBlock.difficulty, lastBlock.timestamp, time.Now().UTC(), MineRate)
+	}
 	for {
 		nonce++
 		pref := strings.Repeat("0", int(difficulty))
-		if adjusting {
-			difficulty = utils.AdjustDifficulty(lastBlock.difficulty, lastBlock.timestamp, time.Now().UTC(), MineRate)
-		}
 		copy := lastBlock.Create(nonce, difficulty, data)
-
-		copy.hash = copy.GetHash()
 		if strings.HasPrefix(copy.hash, pref) {
 			return copy
 		}

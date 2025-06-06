@@ -1,16 +1,13 @@
 package tests
 
 import (
-	"strings"
 	"testing"
-	"time"
 )
 
-func TestMineBlock(t *testing.T) {
-	mined := bc.MineBlock("", false)
-	time.Sleep(time.Second * 4)
-	mined = bc.MineBlock("", false)
-	if !strings.HasPrefix(mined.GetHash(), strings.Repeat("0", int(4))) {
-		t.Errorf("Difficulty  was %s", mined.GetHash())
+func TestBlock(t *testing.T) {
+	b1 := genesisBlock
+	b2 := bc.MineBlock("")
+	if b1.GetHash() != b2.GetPrevious() || b2.GetHash() != b2.HashBlock() {
+		t.Errorf("1st block's hash %s should match 2nd block's previous hash %s and hash func of 2nd %s should export blocks hash %s\n", b1.GetHash(), b2.GetPrevious(), b2.HashBlock(), b2.GetHash())
 	}
 }

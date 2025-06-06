@@ -19,17 +19,18 @@ type Block struct {
 
 func Genesis() Block {
 	block := Block{
-		index:    0,
-		previous: GenesisLastHash,
-		Nonce:    0,
+		index:      0,
+		previous:   GenesisLastHash,
+		Nonce:      0,
+		difficulty: 1,
+		data:       "",
 	}
-	block.data = ""
-	block.hash = block.GetHash()
+	block.hash = block.HashBlock()
 	return block
 }
 
 func (b *Block) Create(nonce int64, diff int64, data string) Block {
-	return Block{
+	var created Block = Block{
 		index:      b.index + 1,
 		previous:   b.hash,
 		data:       data,
@@ -37,10 +38,17 @@ func (b *Block) Create(nonce int64, diff int64, data string) Block {
 		Nonce:      nonce,
 		difficulty: diff,
 	}
+	created.hash = created.HashBlock()
+	return created
 
 }
-
-func (b *Block) GetHash() string {
+func (b Block) GetHash() string {
+	return b.hash
+}
+func (b Block) GetPrevious() string {
+	return b.previous
+}
+func (b Block) HashBlock() string {
 	var record string = string(b.index) + string(b.Nonce) + string(b.difficulty) + b.previous + b.data + b.timestamp.Format(time.RFC3339)
 	return utils.Hash(record)
 }

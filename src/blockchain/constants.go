@@ -11,7 +11,7 @@ const (
 	MiningReward float64 = 3000
 )
 
-var GenesisLastHash = strings.Repeat("0", 64)
+var GenesisLastHash string = strings.Repeat("0", 64)
 
 var maxByTimestamp = func(k Transaction, t Transaction) Transaction {
 	if k.Input.Timestamp.UnixMilli() > t.Input.Timestamp.UnixMilli() {

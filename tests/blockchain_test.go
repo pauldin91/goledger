@@ -24,7 +24,7 @@ func TestMineBlock(t *testing.T) {
 		_ = bc.AddBlock(strconv.Itoa(i))
 	}
 	time.Sleep(time.Second * 1)
-	mined := bc.MineBlock("")
+	mined := bc.AddBlock("")
 	if !strings.HasPrefix(mined.HashBlock(), strings.Repeat("0", int(1))) {
 		t.Errorf("Difficulty  was %s", mined.HashBlock())
 	}

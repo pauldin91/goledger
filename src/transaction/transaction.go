@@ -3,12 +3,10 @@ package transaction
 import (
 	"encoding/json"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type Transaction struct {
-	Id        uuid.UUID          `json:"id"`
+	TxID      string             `json:"txid"`
 	Sender    string             `json:"sender"`
 	Recipient string             `json:"recipient"`
 	Amount    float64            `json:"amount"`
@@ -25,7 +23,7 @@ func (t Transaction) String() string {
 }
 func transactionWithOutputs(outputs []TxInput, amount float64) Transaction {
 	transaction := Transaction{
-		Id: uuid.New(),
+		Amount: amount,
 	}
 	return transaction
 }
@@ -34,8 +32,7 @@ func (t *Transaction) sign() {
 }
 
 func NewTransaction(recipient string, amount float64) *Transaction {
-	outputs := []TxInput{}
-	var created Transaction = transactionWithOutputs(outputs, amount)
+	var created Transaction = transactionWithOutputs([]TxInput{}, amount)
 	return &created
 }
 

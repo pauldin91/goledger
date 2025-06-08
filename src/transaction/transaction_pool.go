@@ -1,7 +1,7 @@
 package transaction
 
 type TransactionPool struct {
-	Transactions []Transaction
+	Transactions map[string]Transaction
 }
 
 func (p *TransactionPool) Size() int {
@@ -9,24 +9,16 @@ func (p *TransactionPool) Size() int {
 }
 
 func (p *TransactionPool) AddOrUpdateById(transaction Transaction) {
-	var t *Transaction = nil
-	for i, tr := range p.Transactions {
-		if tr.Id == transaction.Id {
-			p.Transactions[i] = transaction
-			break
-		}
-	}
-	if t == nil && transaction.Amount > 0 {
-		p.Transactions = append(p.Transactions, transaction)
+	if transaction.Amount > 0 {
+		p.Transactions[transaction.TxID] = transaction
 	}
 
 }
 
 func (p *TransactionPool) TransactionById(id string) *Transaction {
-	for _, t := range p.Transactions {
-		if t.Id.String() == id {
-			return &t
-		}
+	tr, ok := p.Transactions[id]
+	if ok {
+		return &tr
 	}
 	return nil
 }
@@ -42,5 +34,5 @@ func (p *TransactionPool) ValidTransactions() []Transaction {
 	return transactions
 }
 func (p *TransactionPool) Clear() {
-	p.Transactions = []Transaction{}
+	p.Transactions = make(map[string]Transaction)
 }

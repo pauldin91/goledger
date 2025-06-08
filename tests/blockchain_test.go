@@ -7,11 +7,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pauldin91/goledger/src/blockchain"
+	"github.com/pauldin91/goledger/src/block"
 )
 
 func TestCreate(t *testing.T) {
-	e := blockchain.Create()
+	e := block.Create()
 	jsonGen, _ := json.Marshal(genesisBlock)
 	jsonFirst, _ := json.Marshal(e.Chain[0])
 	if string(jsonFirst) != string(jsonGen) {
@@ -31,7 +31,7 @@ func TestMineBlock(t *testing.T) {
 }
 
 func TestAddBlock(t *testing.T) {
-	e := blockchain.Create()
+	e := block.Create()
 	jsonMsg, _ := json.Marshal(msg)
 	e.AddBlock(string(jsonMsg))
 
@@ -41,11 +41,11 @@ func TestAddBlock(t *testing.T) {
 }
 
 func TestReplaceChain(t *testing.T) {
-	e := blockchain.Create()
+	e := block.Create()
 	jsonMsg, _ := json.Marshal(msg)
 	e.AddBlock(string(jsonMsg))
 
-	b := blockchain.Create()
+	b := block.Create()
 	res := e.ReplaceChain(b.Chain)
 	if res {
 		t.Error("longest chain must not be replaced by smaller ones")

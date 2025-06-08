@@ -1,4 +1,4 @@
-package blockchain
+package block
 
 import (
 	"encoding/json"
@@ -20,7 +20,7 @@ type Block struct {
 func Genesis() Block {
 	block := Block{
 		index:      0,
-		previous:   GenesisLastHash,
+		previous:   utils.GenesisLastHash,
 		Nonce:      0,
 		difficulty: 1,
 		data:       "",

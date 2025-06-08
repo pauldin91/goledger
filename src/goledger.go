@@ -1,14 +1,13 @@
 package goledger
 
 import (
-	"github.com/pauldin91/goledger/src/blockchain"
-	"github.com/pauldin91/goledger/src/utils"
+	"github.com/pauldin91/goledger/src/block"
+	"github.com/pauldin91/goledger/src/transaction"
 )
 
-type Block = blockchain.Block
-type Blockchain = blockchain.Blockchain
-type Transaction = blockchain.Transaction
-type TransactionPool = blockchain.TransactionPool
-type Input = utils.Data
-type Wallet = blockchain.Wallet
-type TimestampAddressFilter = utils.TimestampAddressFilter
+type Block = block.Block
+type Blockchain = block.Blockchain
+type Transaction = transaction.Transaction
+type TransactionPool = transaction.TransactionPool
+type TxInput = transaction.TxInput
+type TxOutput = transaction.TxOutput

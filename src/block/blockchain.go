@@ -1,4 +1,4 @@
-package blockchain
+package block
 
 import (
 	"encoding/json"
@@ -69,7 +69,7 @@ func (bc *Blockchain) MineBlock(data string) Block {
 	}
 	lastBlock = bc.Chain[len(bc.Chain)-1]
 	if lastBlock.index%2048 == 0 {
-		difficulty = utils.AdjustDifficulty(lastBlock.difficulty, lastBlock.timestamp, time.Now().UTC(), MineRate)
+		difficulty = utils.AdjustDifficulty(lastBlock.difficulty, lastBlock.timestamp, time.Now().UTC(), utils.MineRate)
 	}
 	for {
 		nonce++

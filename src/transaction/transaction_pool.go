@@ -1,4 +1,4 @@
-package blockchain
+package transaction
 
 type TransactionPool struct {
 	Transactions []Transaction

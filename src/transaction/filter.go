@@ -6,7 +6,7 @@ func filter(tr Transaction) *Transaction {
 		totalOutput += z.Amount
 	}
 
-	if !tr.Verify() {
+	if !tr.IsValid() {
 		return nil
 	}
 

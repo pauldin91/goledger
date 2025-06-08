@@ -2,7 +2,9 @@ package tests
 
 import (
 	"github.com/pauldin91/goledger/src/block"
+	"github.com/pauldin91/goledger/src/pool"
 	"github.com/pauldin91/goledger/src/transaction"
+	"github.com/pauldin91/goledger/src/tx"
 )
 
 const (
@@ -10,9 +12,8 @@ const (
 )
 
 var genesisBlock = block.Genesis()
-var pool = transaction.TransactionPool{}
+var tp = pool.MemPool{}
 var amount float64 = 10.0
-var tp = transaction.TransactionPool{}
 var bc = block.Create()
 
 var testAmounts = []struct {
@@ -26,9 +27,12 @@ var testAmounts = []struct {
 	{50000.0, false},
 }
 
-var tr = transaction.NewTransaction(recipientAddress, amount)
+var tr = transaction.NewTransaction(tx.TxOutput{
+	Amount:           amount,
+	RecipientAddress: recipientAddress,
+})
 
-var msg = transaction.TxOutput{
-	Address: "r3ciP13nT",
-	Amount:  50.44,
+var msg = tx.TxOutput{
+	RecipientAddress: "r3ciP13nT",
+	Amount:           50.44,
 }

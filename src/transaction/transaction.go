@@ -2,7 +2,6 @@ package transaction
 
 import (
 	"encoding/json"
-	"strconv"
 	"time"
 
 	"github.com/pauldin91/goledger/src/models"
@@ -12,13 +11,10 @@ import (
 
 type Transaction struct {
 	TxID      string
-	Sender    string
-	Recipient string
-	Amount    float64
 	Timestamp time.Time
 	Signature string
 	PublicKey string
-	TxInputs  map[string]tx.TxInput
+	TxInputs  []tx.TxInput
 	TxOutputs []tx.TxOutput
 }
 
@@ -26,30 +22,33 @@ func (t Transaction) String() string {
 	jsonT, _ := json.Marshal(t)
 	return string(jsonT)
 }
-func transactionWithOutputs(inputs []tx.TxInput, output tx.TxOutput) Transaction {
-	transaction := Transaction{
-		Amount: output.Amount,
+
+func (ts *Transaction) Sign(keyPair utils.KeyPair) {
+	hashed := ts.Hash()
+	ts.Signature = keyPair.Sign(hashed)
+}
+
+func CreateTransaction(pubkey string, recipients []tx.TxOutput, utxos []tx.UTXO) *Transaction {
+
+	inputs := make([]tx.TxInput, len(utxos))
+	for i, utxo := range utxos {
+		inputs[i] = utxo.Map()
 	}
-	return transaction
-}
 
-func (t *Transaction) Sign() {
-}
+	tx := &Transaction{
+		TxInputs:  inputs,
+		TxOutputs: recipients,
+		PublicKey: pubkey,
+	}
+	tx.TxID = tx.Hash()
 
-func NewTransaction(output tx.TxOutput) *Transaction {
-	var created Transaction = transactionWithOutputs([]tx.TxInput{}, output)
-	return &created
-}
-
-func (ts Transaction) IsValid() bool {
-	outs, _ := json.Marshal(ts.TxOutputs)
-	var tsString string = utils.Hash(string(outs))
-	return utils.VerifySignature(ts.PublicKey, []byte(tsString), []byte(ts.Signature))
+	return tx
 }
 
 func (transaction Transaction) Hash() string {
 
-	total := strconv.FormatFloat(transaction.Amount, 'f', -1, 64) + transaction.Recipient + transaction.Sender + transaction.Timestamp.String()
+	total := transaction.Timestamp.String()
+
 	inputs := ""
 	for _, v := range transaction.TxInputs {
 		inputs += v.Hash()
@@ -65,13 +64,15 @@ func (transaction Transaction) Hash() string {
 func (transaction Transaction) Map() models.TransactionDto {
 	return models.TransactionDto{
 		TxID:      transaction.Hash(),
-		Sender:    transaction.Sender,
-		Recipient: transaction.Recipient,
-		Amount:    transaction.Amount,
 		Signature: transaction.Signature,
 		Timestamp: transaction.Timestamp,
 		PublicKey: transaction.PublicKey,
 		TxInputs:  transaction.TxInputs,
 		TxOutputs: transaction.TxOutputs,
 	}
+}
+
+func (ts Transaction) IsValid() bool {
+	var tsString string = ts.Hash()
+	return utils.VerifySignature(ts.PublicKey, []byte(tsString), []byte(ts.Signature))
 }

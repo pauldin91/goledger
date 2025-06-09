@@ -12,9 +12,16 @@ const (
 )
 
 var genesisBlock = block.Genesis()
+
 var tp = pool.MemPool{}
+
 var amount float64 = 10.0
+
 var bc = block.Create()
+
+var wallet = transaction.NewWallet()
+
+var utxoSet []tx.UTXO
 
 var testAmounts = []struct {
 	amount           float64
@@ -27,10 +34,13 @@ var testAmounts = []struct {
 	{50000.0, false},
 }
 
-var tr = transaction.NewTransaction(tx.TxOutput{
-	Amount:           amount,
-	RecipientAddress: recipientAddress,
-})
+var tr = transaction.CreateTransaction(
+	wallet.GetPubKey(),
+	[]tx.TxOutput{
+		{Amount: amount,
+			RecipientAddress: recipientAddress,
+		},
+	}, utxoSet)
 
 var msg = tx.TxOutput{
 	RecipientAddress: "r3ciP13nT",

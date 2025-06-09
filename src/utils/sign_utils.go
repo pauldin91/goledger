@@ -18,11 +18,11 @@ type KeyPair struct {
 	public  string
 }
 
-func NewKeyPair() *KeyPair {
+func NewKeyPair() KeyPair {
 	var newKeyPair = KeyPair{}
 	pair := genKeyPair(&newKeyPair.private, &newKeyPair.public)
 	newKeyPair.keyPair = pair
-	return &newKeyPair
+	return newKeyPair
 }
 
 func (pair *KeyPair) GetPublicKey() string {

@@ -7,9 +7,9 @@ import (
 )
 
 type Wallet struct {
-	keyPair      *utils.KeyPair
-	address      string
-	transactions chan models.TransactionDto
+	keyPair utils.KeyPair
+	address string
+	utxoSet []tx.UTXO
 }
 
 func NewWallet() Wallet {
@@ -20,27 +20,62 @@ func NewWallet() Wallet {
 	return wallet
 }
 
-func (w Wallet) CalculateBalance(utxoSet map[string]tx.TxOutput) float64 {
+func (w Wallet) GetAddress() string {
+	return w.address
+}
+func (w Wallet) GetPubKey() string {
+	return w.keyPair.GetPublicKey()
+}
+
+func (w Wallet) CalculateBalance() float64 {
 	balance := 0.0
-	for _, output := range utxoSet {
-		if output.RecipientAddress == w.address {
+	for _, output := range w.utxoSet {
+		if output.Address == w.address {
 			balance += output.Amount
 		}
 	}
 	return balance
 }
 
-func (w Wallet) Send(newOutput tx.TxOutput, utxoSet map[string]tx.TxOutput) bool {
-	if newOutput.Amount <= 0.0 {
+func (w Wallet) Send(recipient tx.TxOutput, pendingts map[string]models.TransactionDto) bool {
+	if recipient.Amount <= 0.0 {
 		return false
 	}
-	balance := w.CalculateBalance(utxoSet)
-	if balance >= newOutput.Amount {
-		tr := NewTransaction(newOutput)
-		w.transactions <- tr.Map()
+	balance := w.CalculateBalance()
+	if balance >= recipient.Amount {
+		outputs, selectedUTXOs := w.selectUTXOsForTransaction(recipient)
+		tr := CreateTransaction(w.keyPair.GetPublicKey(), outputs, selectedUTXOs)
+		tr.Sign(w.keyPair)
+		pendingts[tr.Hash()] = tr.Map()
 		return true
 	} else {
 		return false
 	}
-	return false
+}
+
+func (w Wallet) selectUTXOsForTransaction(recipient tx.TxOutput) ([]tx.TxOutput, []tx.UTXO) {
+	var selectedUTXOs []tx.UTXO
+	var total float64
+	outputs := []tx.TxOutput{
+		recipient,
+	}
+
+	for _, utxo := range w.utxoSet {
+		selectedUTXOs = append(selectedUTXOs, utxo)
+		total += utxo.Amount
+		if total >= recipient.Amount {
+			break
+		}
+	}
+
+	change := total - recipient.Amount
+	if change > 0 {
+		outputs = append(outputs, tx.TxOutput{
+			Amount:           change,
+			RecipientAddress: w.address,
+		})
+	}
+
+	return outputs, selectedUTXOs
+
 }

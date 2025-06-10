@@ -32,7 +32,7 @@ func TestMineBlock(t *testing.T) {
 
 func TestAddBlock(t *testing.T) {
 	e := block.Create()
-	jsonMsg, _ := json.Marshal(msg)
+	jsonMsg, _ := json.Marshal(validOutput)
 	e.AddBlock(string(jsonMsg))
 
 	if len(e.Chain) != 2 {
@@ -42,7 +42,7 @@ func TestAddBlock(t *testing.T) {
 
 func TestReplaceChain(t *testing.T) {
 	e := block.Create()
-	jsonMsg, _ := json.Marshal(msg)
+	jsonMsg, _ := json.Marshal(validOutput)
 	e.AddBlock(string(jsonMsg))
 
 	b := block.Create()

@@ -1,7 +1,7 @@
 package transaction
 
 import (
-	"github.com/pauldin91/goledger/src/models"
+	"github.com/pauldin91/goledger/src/pool"
 	"github.com/pauldin91/goledger/src/tx"
 	"github.com/pauldin91/goledger/src/utils"
 )
@@ -15,9 +15,14 @@ type Wallet struct {
 func NewWallet() Wallet {
 	var wallet Wallet = Wallet{
 		keyPair: utils.NewKeyPair(),
+		utxoSet: make([]tx.UTXO, 0),
 	}
 	wallet.address = utils.Hash(wallet.keyPair.GetPublicKey())
 	return wallet
+}
+
+func (w *Wallet) WithUTXOs(utxos []tx.UTXO) {
+	w.utxoSet = utxos
 }
 
 func (w Wallet) GetAddress() string {
@@ -37,7 +42,7 @@ func (w Wallet) CalculateBalance() float64 {
 	return balance
 }
 
-func (w Wallet) Send(recipient tx.TxOutput, pendingts map[string]models.TransactionDto) bool {
+func (w Wallet) Send(recipient tx.TxOutput, pool *pool.MemPool) bool {
 	if recipient.Amount <= 0.0 {
 		return false
 	}
@@ -46,7 +51,7 @@ func (w Wallet) Send(recipient tx.TxOutput, pendingts map[string]models.Transact
 		outputs, selectedUTXOs := w.selectUTXOsForTransaction(recipient)
 		tr := CreateTransaction(w.keyPair.GetPublicKey(), outputs, selectedUTXOs)
 		tr.Sign(w.keyPair)
-		pendingts[tr.Hash()] = tr.Map()
+		pool.AddOrUpdateByID(tr.Hash(), tr.Map())
 		return true
 	} else {
 		return false

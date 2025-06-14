@@ -5,17 +5,19 @@ import (
 	"github.com/pauldin91/goledger/src/pool"
 	"github.com/pauldin91/goledger/src/transaction"
 	"github.com/pauldin91/goledger/src/tx"
+	"github.com/pauldin91/goledger/src/utils"
 )
 
+var keyPair = utils.NewKeyPair()
 var genesisBlock = block.Genesis()
 
-var tp = pool.MemPool{}
+var tpool = pool.NewPool()
 
 var amount float64 = 10.0
 
 var bc = block.Create()
 
-var senderWallet = transaction.NewWallet()
+var senderWallet = transaction.NewWalletWithKeys(keyPair)
 var recipientWallet = transaction.NewWallet()
 
 var testAmounts = []struct {

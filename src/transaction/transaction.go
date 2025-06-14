@@ -14,6 +14,7 @@ type Transaction struct {
 	Timestamp time.Time
 	Signature string
 	PublicKey string
+	Amount    float64
 	TxInputs  []tx.TxInput
 	TxOutputs []tx.TxOutput
 }
@@ -34,11 +35,20 @@ func CreateTransaction(pubkey string, recipients []tx.TxOutput, utxos []tx.UTXO)
 	for i, utxo := range utxos {
 		inputs[i] = utxo.Map()
 	}
+	k := 0
+	for i, c := range recipients {
+		if c.RecipientAddress != utils.Hash(pubkey) {
+			k = i
+			break
+		}
+	}
 
 	tx := &Transaction{
 		TxInputs:  inputs,
 		TxOutputs: recipients,
 		PublicKey: pubkey,
+		Timestamp: time.Now().UTC(),
+		Amount:    recipients[k].Amount,
 	}
 	tx.TxID = tx.Hash()
 
@@ -58,7 +68,7 @@ func (transaction Transaction) Hash() string {
 		outputs += v.Hash()
 	}
 	total += inputs + outputs
-	return total
+	return utils.Hash(total)
 }
 
 func (transaction Transaction) Map() models.TransactionDto {
@@ -69,6 +79,7 @@ func (transaction Transaction) Map() models.TransactionDto {
 		PublicKey: transaction.PublicKey,
 		TxInputs:  transaction.TxInputs,
 		TxOutputs: transaction.TxOutputs,
+		Amount:    transaction.Amount,
 	}
 }
 

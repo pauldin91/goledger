@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/pauldin91/goledger/src/tx"
@@ -20,8 +19,23 @@ type TransactionDto struct {
 	TxOutputs []tx.TxOutput `json:"outputs"`
 }
 
+func (transaction TransactionDto) Hash() string {
+
+	total := transaction.Timestamp.String()
+
+	inputs := ""
+	for _, v := range transaction.TxInputs {
+		inputs += v.Hash()
+	}
+	outputs := ""
+	for _, v := range transaction.TxOutputs {
+		outputs += v.Hash()
+	}
+	total += inputs + outputs
+	return utils.Hash(total)
+}
+
 func (transaction TransactionDto) IsValid() bool {
-	outs, _ := json.Marshal(transaction.TxOutputs)
-	var tsString string = utils.Hash(string(outs))
+	var tsString string = transaction.Hash()
 	return utils.VerifySignature(transaction.PublicKey, []byte(tsString), []byte(transaction.Signature))
 }

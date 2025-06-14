@@ -35,7 +35,7 @@ func (pair *KeyPair) Sign(hashedData string) string {
 	if err != nil {
 		log.Fatal("could sign data")
 	}
-	return string(res)
+	return base64.StdEncoding.EncodeToString(res)
 }
 
 func VerifySignature(publicKey string, hashed []byte, sig []byte) bool {
@@ -56,8 +56,8 @@ func VerifySignature(publicKey string, hashed []byte, sig []byte) bool {
 		X:     x,
 		Y:     y,
 	}
-
-	valid := ecdsa.VerifyASN1(pubKey, hashed, sig)
+	decodedSig, _ := base64.StdEncoding.DecodeString(string(sig))
+	valid := ecdsa.VerifyASN1(pubKey, hashed, decodedSig)
 	return valid
 }
 

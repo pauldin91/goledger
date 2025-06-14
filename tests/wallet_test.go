@@ -31,7 +31,7 @@ func TestBalance(t *testing.T) {
 func TestValidSendOutputToMempool(t *testing.T) {
 
 	senderWallet.WithUTXOs(utxoSet)
-	isSent := senderWallet.Send(validOutput, &tp)
+	isSent := senderWallet.Send(validOutput, &tpool)
 
 	if !isSent {
 		t.Errorf("Not sent")

@@ -48,6 +48,7 @@ func (p *MemPool) PurgeExpired() {
 		if p.isExpired(*v) {
 			p.mutex.Lock()
 			delete(p.Transactions, id)
+			delete(p.timestamps, id)
 			p.mutex.Unlock()
 		}
 	}

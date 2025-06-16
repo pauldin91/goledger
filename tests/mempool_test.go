@@ -65,7 +65,3 @@ func TestValidate(t *testing.T) {
 		t.Error("should validate a valid transaction\n")
 	}
 }
-
-func TestValidTxs(t *testing.T) {
-
-}

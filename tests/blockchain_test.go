@@ -11,7 +11,9 @@ import (
 )
 
 func TestCreate(t *testing.T) {
-	e := block.Create()
+	e := block.Blockchain{
+		Chain: []block.Block{genesisBlock},
+	}
 	jsonGen, _ := json.Marshal(genesisBlock)
 	jsonFirst, _ := json.Marshal(e.Chain[0])
 	if string(jsonFirst) != string(jsonGen) {
@@ -31,7 +33,7 @@ func TestMineBlock(t *testing.T) {
 }
 
 func TestAddBlock(t *testing.T) {
-	e := block.Create()
+	e := block.Blockchain{}
 	jsonMsg, _ := json.Marshal(validOutput)
 	e.AddBlock(string(jsonMsg))
 
@@ -41,11 +43,15 @@ func TestAddBlock(t *testing.T) {
 }
 
 func TestReplaceChain(t *testing.T) {
-	e := block.Create()
+	e := block.Blockchain{
+		Chain: []block.Block{genesisBlock},
+	}
 	jsonMsg, _ := json.Marshal(validOutput)
 	e.AddBlock(string(jsonMsg))
 
-	b := block.Create()
+	b := block.Blockchain{
+		Chain: []block.Block{genesisBlock},
+	}
 	res := e.ReplaceChain(b.Chain)
 	if res {
 		t.Error("longest chain must not be replaced by smaller ones")

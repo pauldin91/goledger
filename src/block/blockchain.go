@@ -2,19 +2,29 @@ package block
 
 import (
 	"encoding/json"
+	"log"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/pauldin91/goledger/src/utils"
 )
 
 type Blockchain struct {
-	Chain []Block
+	transmitTsChan chan string
+	errorChan      chan error
+	wg             *sync.WaitGroup
+	Chain          []Block
 }
 
-func Create() *Blockchain {
-	bc := Blockchain{}
+func Create(transmitTsChan chan string) *Blockchain {
+	bc := Blockchain{
+		transmitTsChan: transmitTsChan,
+		errorChan:      make(chan error),
+		wg:             &sync.WaitGroup{},
+	}
 	bc.Chain = append(bc.Chain, Genesis())
+	bc.listenToMempool()
 	return &bc
 }
 
@@ -74,4 +84,18 @@ func isValid(bc []Block) bool {
 		}
 	}
 	return true
+}
+
+func (bc *Blockchain) listenToMempool() {
+	go func() {
+		for {
+			select {
+			case data := <-bc.transmitTsChan:
+				bc.AddBlock(data)
+			case err := <-bc.errorChan:
+				log.Printf("error: %v", err)
+				return
+			}
+		}
+	}()
 }

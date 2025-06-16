@@ -8,14 +8,20 @@ import (
 	"github.com/pauldin91/goledger/src/utils"
 )
 
+const (
+	amount float64 = 1.0
+)
+
+var transmitTsChan chan string = make(chan string)
+
 var keyPair = utils.NewKeyPair()
 var genesisBlock = block.Genesis()
 
-var tpool = pool.NewPool()
+var tpool = pool.NewPool(transmitTsChan)
 
-var amount float64 = 10.0
-
-var bc = block.Create()
+var bc = block.Blockchain{
+	Chain: []block.Block{genesisBlock},
+}
 
 var senderWallet = transaction.NewWalletWithKeys(keyPair)
 var recipientWallet = transaction.NewWallet()
@@ -47,6 +53,25 @@ var tr = transaction.CreateTransaction(
 			RecipientAddress: recipientWallet.GetAddress(),
 		},
 	}, utxoSet)
+
+var trsForPool = []*transaction.Transaction{
+	transaction.CreateTransaction(senderWallet.GetPubKey(),
+		[]tx.TxOutput{{Amount: amount, RecipientAddress: recipientWallet.GetAddress()}}, utxoSet),
+	transaction.CreateTransaction(recipientWallet.GetPubKey(),
+		[]tx.TxOutput{{Amount: amount, RecipientAddress: senderWallet.GetAddress()}}, utxoSet),
+	transaction.CreateTransaction(senderWallet.GetPubKey(),
+		[]tx.TxOutput{{Amount: amount, RecipientAddress: recipientWallet.GetAddress()}}, utxoSet),
+	transaction.CreateTransaction(recipientWallet.GetPubKey(),
+		[]tx.TxOutput{{Amount: amount, RecipientAddress: senderWallet.GetAddress()}}, utxoSet),
+	transaction.CreateTransaction(senderWallet.GetPubKey(),
+		[]tx.TxOutput{{Amount: amount, RecipientAddress: recipientWallet.GetAddress()}}, utxoSet),
+	transaction.CreateTransaction(recipientWallet.GetPubKey(),
+		[]tx.TxOutput{{Amount: amount, RecipientAddress: senderWallet.GetAddress()}}, utxoSet),
+	transaction.CreateTransaction(senderWallet.GetPubKey(),
+		[]tx.TxOutput{{Amount: amount, RecipientAddress: recipientWallet.GetAddress()}}, utxoSet),
+	transaction.CreateTransaction(recipientWallet.GetPubKey(),
+		[]tx.TxOutput{{Amount: amount, RecipientAddress: senderWallet.GetAddress()}}, utxoSet),
+}
 
 var validOutput = tx.TxOutput{
 	RecipientAddress: recipientWallet.GetAddress(),

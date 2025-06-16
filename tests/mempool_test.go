@@ -3,6 +3,8 @@ package tests
 import (
 	"testing"
 	"time"
+
+	"github.com/pauldin91/goledger/src/block"
 )
 
 func TestCreatePool(t *testing.T) {
@@ -23,6 +25,7 @@ func TestAddToThePool(t *testing.T) {
 }
 
 func TestUpdateToThePool(t *testing.T) {
+	tr.Sign(keyPair)
 	mappedDto := tr.Map()
 	mappedDto.Amount = 1000.0
 	tpool.AddOrUpdateByID(tr.TxID, &mappedDto)
@@ -64,4 +67,20 @@ func TestValidate(t *testing.T) {
 	if !tpool.Validate(mapped) {
 		t.Error("should validate a valid transaction\n")
 	}
+}
+
+func TestFlushToBc(t *testing.T) {
+	bc := block.Create(transmitTsChan)
+	for _, c := range trsForPool {
+		c.Sign(keyPair)
+		mapped := c.Map()
+		tpool.AddOrUpdateByID(c.TxID, &mapped)
+	}
+	if tpool.Size() != 1 {
+		t.Errorf("remaining transaction is 1 but has %d\n", tpool.Size())
+	}
+	if len(bc.Chain) != 2 {
+		t.Errorf("blockchain should have 2 blocks but has %d\n", len(bc.Chain))
+	}
+
 }

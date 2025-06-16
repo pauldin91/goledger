@@ -61,7 +61,7 @@ func (w Wallet) Send(recipient tx.TxOutput, pool *pool.MemPool) bool {
 		tr := CreateTransaction(w.keyPair.GetPublicKey(), outputs, selectedUTXOs)
 		tr.Sign(w.keyPair)
 		mapped := tr.Map()
-		pool.AddOrUpdateByID(tr.Hash(), &mapped)
+		pool.AddOrUpdateByID(tr.TxID, &mapped)
 		return true
 	} else {
 		return false

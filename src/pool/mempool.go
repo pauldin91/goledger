@@ -1,16 +1,20 @@
 package pool
 
 import (
+	"slices"
 	"sync"
 	"time"
 
+	"github.com/pauldin91/goledger/src/block"
 	"github.com/pauldin91/goledger/src/models"
+	"github.com/pauldin91/goledger/src/utils"
 )
 
 type MemPool struct {
 	Transactions map[string]*models.TransactionDto
 	timestamps   map[string]time.Time
 	mutex        sync.Mutex
+	max_size     int64
 }
 
 func NewPool() MemPool {
@@ -18,6 +22,7 @@ func NewPool() MemPool {
 		mutex:        sync.Mutex{},
 		Transactions: make(map[string]*models.TransactionDto),
 		timestamps:   make(map[string]time.Time),
+		max_size:     utils.MemPoolSize,
 	}
 }
 
@@ -68,4 +73,28 @@ func (p *MemPool) Validate(tr models.TransactionDto) bool {
 func (p *MemPool) Clear() {
 	p.Transactions = make(map[string]*models.TransactionDto)
 	p.timestamps = make(map[string]time.Time)
+}
+
+func (p *MemPool) createBlock(bc *block.Blockchain) {
+
+	var orderedTs = make([]models.TransactionDto, len(p.Transactions))
+
+	p.mutex.Lock()
+	for _, c := range p.Transactions {
+		orderedTs = append(orderedTs, *c)
+	}
+	for _, c := range p.Transactions {
+		delete(p.Transactions, c.TxID)
+		delete(p.timestamps, c.TxID)
+	}
+	p.mutex.Unlock()
+
+	slices.SortFunc(orderedTs, func(t1, t2 models.TransactionDto) int {
+		var result = t1.Timestamp.Compare(t1.Timestamp)
+		return result
+	})
+
+	var data = models.String(orderedTs)
+
+	bc.AddBlock(data)
 }

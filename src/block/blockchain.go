@@ -44,7 +44,7 @@ func (bc *Blockchain) mine(data string) Block {
 		bc.Chain = append(bc.Chain, Genesis())
 	}
 	lastBlock = bc.Chain[len(bc.Chain)-1]
-	if lastBlock.index%2048 == 0 {
+	if lastBlock.index%utils.AdjustDifficultyEvery == 0 {
 		difficulty = utils.AdjustDifficulty(lastBlock.difficulty, lastBlock.timestamp, time.Now().UTC(), utils.MineRate)
 	}
 	for {

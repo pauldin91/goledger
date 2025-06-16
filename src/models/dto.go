@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/pauldin91/goledger/src/tx"
@@ -38,4 +39,14 @@ func (transaction TransactionDto) Hash() string {
 func (transaction TransactionDto) IsValid() bool {
 	var tsString string = transaction.Hash()
 	return utils.VerifySignature(transaction.PublicKey, []byte(tsString), []byte(transaction.Signature))
+}
+
+func (transaction TransactionDto) String() string {
+	data, _ := json.Marshal(transaction)
+	return string(data)
+}
+
+func String(transactions []TransactionDto) string {
+	data, _ := json.Marshal(transactions)
+	return string(data)
 }

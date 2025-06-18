@@ -70,13 +70,13 @@ func TestValidate(t *testing.T) {
 }
 
 func TestFlushToBc(t *testing.T) {
-	bc := block.Create(transmitTsChan)
+	bc := block.Create(transmitTsChan, doneChan)
 	for _, c := range trsForPool {
 		c.Sign(keyPair)
 		mapped := c.Map()
 		tpool.AddOrUpdateByID(c.TxID, &mapped)
 	}
-	if tpool.Size() != 1 {
+	if tpool.Size() != 0 {
 		t.Errorf("remaining transaction is 1 but has %d\n", tpool.Size())
 	}
 	if len(bc.Chain) != 2 {

@@ -14,13 +14,15 @@ type MemPool struct {
 	Transactions  map[string]*models.TransactionDto
 	timestamps    map[string]time.Time
 	mutex         sync.Mutex
+	done          chan bool
 	poolSize      int
 }
 
-func NewPool(poolReady chan string) MemPool {
+func NewPool(poolReady chan string, done chan bool) MemPool {
 	return MemPool{
 		mutex:         sync.Mutex{},
 		poolReadyChan: poolReady,
+		done:          done,
 		Transactions:  make(map[string]*models.TransactionDto),
 		timestamps:    make(map[string]time.Time),
 		poolSize:      utils.MemPoolSize,
@@ -81,12 +83,12 @@ func (p *MemPool) flushToChain() {
 
 	if p.poolSize <= len(p.Transactions) {
 
-		var orderedTs = make([]models.TransactionDto, p.poolSize)
+		var orderedTs = make([]models.TransactionDto, 0)
 
 		p.mutex.Lock()
 		i := 0
 		for _, c := range p.Transactions {
-			if len(orderedTs) == p.poolSize {
+			if p.poolSize == i {
 				break
 			}
 			orderedTs = append(orderedTs, *c)
@@ -96,14 +98,15 @@ func (p *MemPool) flushToChain() {
 			delete(p.Transactions, c.TxID)
 			delete(p.timestamps, c.TxID)
 		}
-		p.mutex.Unlock()
 
 		slices.SortFunc(orderedTs, func(t1, t2 models.TransactionDto) int {
-			var result = t1.Timestamp.Compare(t1.Timestamp)
+			var result = t1.Timestamp.Compare(t2.Timestamp)
 			return result
 		})
 
 		var data = models.String(orderedTs)
 		p.poolReadyChan <- data
+		<-p.done
+		p.mutex.Unlock()
 	}
 }

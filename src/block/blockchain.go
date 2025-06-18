@@ -13,18 +13,22 @@ import (
 type Blockchain struct {
 	transmitTsChan chan string
 	errorChan      chan error
+	doneChan       chan bool
 	wg             *sync.WaitGroup
 	Chain          []Block
 }
 
-func Create(transmitTsChan chan string) *Blockchain {
+func Create(transmitTsChan chan string, doneChan chan bool) *Blockchain {
 	bc := Blockchain{
 		transmitTsChan: transmitTsChan,
 		errorChan:      make(chan error),
+		doneChan:       doneChan,
 		wg:             &sync.WaitGroup{},
 	}
 	bc.Chain = append(bc.Chain, Genesis())
-	bc.listenToMempool()
+	go func() {
+		bc.listenToMempool()
+	}()
 	return &bc
 }
 
@@ -54,12 +58,12 @@ func (bc *Blockchain) mine(data string) Block {
 		bc.Chain = append(bc.Chain, Genesis())
 	}
 	lastBlock = bc.Chain[len(bc.Chain)-1]
-	if lastBlock.index%utils.AdjustDifficultyEvery == 0 {
+	if lastBlock.index != 0 && lastBlock.index%utils.AdjustDifficultyEvery == 0 {
 		difficulty = utils.AdjustDifficulty(lastBlock.difficulty, lastBlock.timestamp, time.Now().UTC(), utils.MineRate)
 	}
+	pref := strings.Repeat("0", int(difficulty))
 	for {
 		nonce++
-		pref := strings.Repeat("0", int(difficulty))
 		copy := lastBlock.Create(nonce, difficulty, data)
 		if strings.HasPrefix(copy.hash, pref) {
 			return copy
@@ -87,15 +91,16 @@ func isValid(bc []Block) bool {
 }
 
 func (bc *Blockchain) listenToMempool() {
-	go func() {
-		for {
-			select {
-			case data := <-bc.transmitTsChan:
-				bc.AddBlock(data)
-			case err := <-bc.errorChan:
-				log.Printf("error: %v", err)
-				return
-			}
+
+	for {
+		select {
+		case data := <-bc.transmitTsChan:
+			bc.AddBlock(data)
+			bc.doneChan <- true
+		case err := <-bc.errorChan:
+			log.Printf("error: %v", err)
+			return
 		}
-	}()
+	}
+
 }

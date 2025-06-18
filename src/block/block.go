@@ -2,6 +2,7 @@ package block
 
 import (
 	"encoding/json"
+	"strconv"
 	"time"
 
 	"github.com/pauldin91/goledger/src/utils"
@@ -49,8 +50,12 @@ func (b Block) GetPrevious() string {
 	return b.previous
 }
 func (b Block) HashBlock() string {
-	var record string = string(b.index) + string(b.Nonce) + string(b.difficulty) + b.previous + b.data + b.timestamp.Format(time.RFC3339)
-	return utils.Hash(record)
+	var record string = strconv.FormatInt(b.index, 10) + strconv.FormatInt(b.Nonce, 10) +
+		strconv.FormatInt(b.difficulty, 10) +
+		b.previous + b.data + b.timestamp.Format(time.RFC3339)
+
+	resutl := utils.Hash(record)
+	return resutl
 }
 
 func (b *Block) ToString() string {

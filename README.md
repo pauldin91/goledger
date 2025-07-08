@@ -1,1 +1,1 @@
-# Goledger is a simple PoC of blockchain
+# Goledger is a simple blockchain implementation
